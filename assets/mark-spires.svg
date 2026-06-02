@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="UFS spire mark">
+  
+  <g fill="#72262A">
+    <polygon points="22,18 30,18 30,82 22,82"></polygon>
+    <polygon points="22,18 26,8 30,18"></polygon>
+  </g>
+  
+  <g fill="#C9A35A">
+    <polygon points="48,32 56,32 56,82 48,82"></polygon>
+    <polygon points="48,32 52,22 56,32"></polygon>
+  </g>
+  
+  <g stroke="currentColor" stroke-width="0.8" opacity="0.9">
+    <line x1="25" y1="20" x2="25" y2="80"></line>
+    <line x1="27" y1="20" x2="27" y2="80"></line>
+    <line x1="51" y1="34" x2="51" y2="80"></line>
+    <line x1="53" y1="34" x2="53" y2="80"></line>
+  </g>
+</svg>

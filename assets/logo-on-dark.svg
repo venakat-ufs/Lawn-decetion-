@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="United Field Services">
+  <g transform="translate(115 10)">
+    <g fill="#9F353B">
+      <polygon points="22,18 30,18 30,82 22,82"></polygon>
+      <polygon points="22,18 26,8 30,18"></polygon>
+    </g>
+    <g fill="#F0D8AA">
+      <polygon points="48,32 56,32 56,82 48,82"></polygon>
+      <polygon points="48,32 52,22 56,32"></polygon>
+    </g>
+    <g stroke="#1F1F1F" stroke-width="0.8" opacity="0.5">
+      <line x1="25" y1="20" x2="25" y2="80"></line>
+      <line x1="27" y1="20" x2="27" y2="80"></line>
+      <line x1="51" y1="34" x2="51" y2="80"></line>
+      <line x1="53" y1="34" x2="53" y2="80"></line>
+    </g>
+  </g>
+  <text x="160" y="124" text-anchor="middle" font-family="Playfair Display, Georgia, &#39;Times New Roman&#39;, serif" font-style="italic" font-weight="500" font-size="18" fill="#F7F5F2">Field Services</text>
+  <text x="160" y="195" text-anchor="middle" font-family="Oswald, &#39;Arial Narrow&#39;, Impact, sans-serif" font-weight="700" font-size="78" letter-spacing="2" fill="#F7F5F2">UNITED</text>
+</svg>

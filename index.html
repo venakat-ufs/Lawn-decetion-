@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>United Field Services | Free Lawn Mowing Quote</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+  <!-- ===================== STEP 1: HERO / ADDRESS ENTRY ===================== -->
+  <div id="step-1" class="step active">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#">
+          <img class="brand__logo" src="assets/ufs-logo-ondark.png" alt="United Field Services">
+        </a>
+        <div class="header-contact">
+          <a class="email" href="mailto:inquire@unitedffs.com">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            inquire@unitedffs.com
+          </a>
+          <a class="phone" href="tel:8774639010">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18z"/></svg>
+            (877) 463-9010
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero-lawn">
+      <div class="container hero-lawn__inner">
+        <div class="hero-lawn__copy">
+          <span class="eyebrow">Lawn Mowing · Nationwide Service</span>
+          <h1>Get Your Free Lawn Mowing Quote in 60 Seconds</h1>
+          <p>Enter your address, outline your lawn on the map, and get an instant price estimate — no calls needed.</p>
+
+          <div class="address-input-wrap">
+            <div class="address-field">
+              <svg class="addr-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <input id="addressInput" type="text" placeholder="Enter your property address…" autocomplete="off">
+            </div>
+            <button class="btn btn--primary btn--lg" id="startBtn">
+              Get Free Estimate <span class="arrow">→</span>
+            </button>
+          </div>
+          <p class="addr-hint" id="addrHint" style="display:none;color:#e57373;">Please enter a valid address to continue.</p>
+
+          <div class="hero__strip">
+            <span>Licensed</span><span class="arrow">→</span>
+            <span>Qualified</span><span class="arrow">→</span>
+            <span>Nationwide</span>
+          </div>
+        </div>
+
+        <div class="hero-lawn__media">
+          <div class="lawn-preview-card">
+            <div class="lawn-preview-card__img">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80" alt="Freshly mowed lawn">
+            </div>
+            <div class="lawn-preview-card__badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="m9 12 2 2 4-4"/></svg>
+              Free same-day quotes
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services strip -->
+      <div class="lawn-services-strip">
+        <div class="container">
+          <div class="lawn-services-strip__grid">
+            <div class="lawn-strip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/></svg>
+              <span>Lawn Mowing</span>
+            </div>
+            <div class="lawn-strip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22V12a10 10 0 1 1 20 0v10"/><path d="M15 22v-4a3 3 0 0 0-6 0v4"/></svg>
+              <span>Edging &amp; Trimming</span>
+            </div>
+            <div class="lawn-strip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 7 2 2 2c0 5 5 10 10 10M12 12c0-5 5-10 10-10-5 0-10 5-10 10"/></svg>
+              <span>Cleanup &amp; Blowing</span>
+            </div>
+            <div class="lawn-strip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span>One-time or Recurring</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== STEP 2: MAP / OUTLINE ===================== -->
+  <div id="step-2" class="step">
+    <div class="map-header">
+      <div class="map-header__left">
+        <img src="assets/ufs-logo-ondark.png" alt="UFS" class="map-logo">
+        <div class="map-address-display">
+          <span id="mapAddressLabel">Loading address…</span>
+          <span class="map-sqft" id="sqftDisplay">Draw your lawn to calculate size</span>
+        </div>
+      </div>
+      <div class="map-header__tools">
+        <button class="map-tool-btn active" id="traceBtn" title="Trace your lawn area">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Trace
+        </button>
+        <button class="map-tool-btn" id="editBtn" title="Edit polygon points">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+        <button class="map-tool-btn" id="undoBtn" title="Undo last action">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          Undo
+        </button>
+        <button class="map-tool-btn" id="clearBtn" title="Clear and redraw">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Instruction overlay -->
+    <div class="map-instruction" id="mapInstruction">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Click around the outline of your lawn area. Double-click to finish.
+      <button class="dismiss-hint" id="dismissHint">Got it</button>
+    </div>
+
+    <div class="map-footer">
+      <button class="btn btn--ghost" id="backToStep1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="map-footer__center">
+        <span id="mapFooterHint">Trace your lawn area on the map above</span>
+      </div>
+      <button class="btn btn--primary btn--lg" id="getEstimateBtn" disabled>
+        Get My Estimate <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3: ESTIMATE ===================== -->
+  <div id="step-3" class="step">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#" onclick="goToStep(1)">
+          <img class="brand__logo" src="assets/ufs-logo-ondark.png" alt="United Field Services">
+        </a>
+        <div class="header-contact">
+          <a class="phone" href="tel:8774639010">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18z"/></svg>
+            (877) 463-9010
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="estimate-section">
+      <div class="container">
+        <div class="estimate-grid">
+          <div class="estimate-card">
+            <span class="eyebrow">Your Estimate</span>
+            <h2 id="estimatePrice">$50 – $80</h2>
+            <p class="estimate-desc">per visit · based on <strong id="estimateSqft">—</strong></p>
+
+            <div class="estimate-includes">
+              <h4>What's included</h4>
+              <ul>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Lawn mowing to uniform height
+                </li>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Edge trimming along borders
+                </li>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Clipping cleanup &amp; blowing
+                </li>
+                <li>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Licensed &amp; insured crew
+                </li>
+              </ul>
+            </div>
+
+            <div class="estimate-freq">
+              <h4>How often?</h4>
+              <div class="freq-options">
+                <label class="freq-opt">
+                  <input type="radio" name="freq" value="one-time"> One-time visit
+                </label>
+                <label class="freq-opt">
+                  <input type="radio" name="freq" value="weekly" checked> Weekly <span class="freq-badge">Save 10%</span>
+                </label>
+                <label class="freq-opt">
+                  <input type="radio" name="freq" value="biweekly"> Every 2 weeks <span class="freq-badge">Save 5%</span>
+                </label>
+                <label class="freq-opt">
+                  <input type="radio" name="freq" value="monthly"> Monthly
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn--primary btn--lg btn--block" id="bookNowBtn">
+              Book This Service <span class="arrow">→</span>
+            </button>
+            <button class="btn btn--ghost btn--block" onclick="goToStep(2)" style="margin-top:10px;">
+              ← Redraw my lawn
+            </button>
+          </div>
+
+          <div class="estimate-map-thumb">
+            <div class="estimate-map-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span id="estimateAddress">Your property</span>
+            </div>
+            <div id="miniMap"></div>
+            <div class="estimate-map-stat">
+              <span id="estimateSqftStat">—</span>
+              <small>sq ft of lawn</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== STEP 4: LEAD CAPTURE ===================== -->
+  <div id="step-4" class="step">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#" onclick="goToStep(1)">
+          <img class="brand__logo" src="assets/ufs-logo-ondark.png" alt="United Field Services">
+        </a>
+        <div class="header-contact">
+          <a class="phone" href="tel:8774639010">(877) 463-9010</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="booking-section">
+      <div class="container">
+        <div class="booking-grid">
+          <div class="booking-summary">
+            <span class="eyebrow">Your order summary</span>
+            <h3>Lawn Mowing Service</h3>
+            <div class="summary-line"><span>Property</span><span id="summaryAddress">—</span></div>
+            <div class="summary-line"><span>Lawn size</span><span id="summarySqft">—</span></div>
+            <div class="summary-line"><span>Frequency</span><span id="summaryFreq">Weekly</span></div>
+            <div class="summary-line summary-line--total"><span>Estimated price</span><span id="summaryPrice">—</span></div>
+            <p class="summary-note">Final price confirmed after first visit. No hidden fees.</p>
+          </div>
+
+          <div class="booking-form-wrap">
+            <span class="eyebrow">Your details</span>
+            <h2>Confirm Your Booking</h2>
+            <form id="bookingForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="bk-name">Full Name</label>
+                  <input type="text" id="bk-name" class="form-control" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-group">
+                  <label for="bk-phone">Mobile Number</label>
+                  <input type="tel" id="bk-phone" class="form-control" placeholder="(555) 000-0000" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="bk-email">Email Address</label>
+                <input type="email" id="bk-email" class="form-control" placeholder="jane@email.com" required>
+              </div>
+              <div class="form-group">
+                <label for="bk-address">Property Address</label>
+                <input type="text" id="bk-address" class="form-control" readonly>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="bk-date">Preferred Start Date</label>
+                  <input type="date" id="bk-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label for="bk-time">Preferred Time</label>
+                  <select id="bk-time" class="form-control">
+                    <option value="morning">Morning (8am – 12pm)</option>
+                    <option value="afternoon">Afternoon (12pm – 4pm)</option>
+                    <option value="flexible">Flexible</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="bk-notes">Special Instructions (optional)</label>
+                <textarea id="bk-notes" class="form-control" rows="3" placeholder="Gate code, dogs in yard, areas to avoid…"></textarea>
+              </div>
+              <button type="submit" class="btn btn--primary btn--lg btn--block">
+                Confirm Booking <span class="arrow">→</span>
+              </button>
+              <p class="form-disclaimer">By submitting you agree to be contacted by a UFS representative to confirm your appointment.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== STEP 5: CONFIRMATION ===================== -->
+  <div id="step-5" class="step">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#" onclick="goToStep(1)">
+          <img class="brand__logo" src="assets/ufs-logo-ondark.png" alt="United Field Services">
+        </a>
+      </div>
+    </header>
+    <section class="confirm-section">
+      <div class="container">
+        <div class="confirm-card">
+          <div class="confirm-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <h2>Booking Request Received!</h2>
+          <p>Thank you! A United Field Services representative will call you within <strong>2 business hours</strong> to confirm your lawn mowing appointment.</p>
+          <div class="confirm-details">
+            <div class="confirm-line"><span>Address</span><strong id="confirmAddress">—</strong></div>
+            <div class="confirm-line"><span>Estimated price</span><strong id="confirmPrice">—</strong></div>
+            <div class="confirm-line"><span>Preferred date</span><strong id="confirmDate">—</strong></div>
+          </div>
+          <a href="tel:8774639010" class="btn btn--primary btn--lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18z"/></svg>
+            Call Us: (877) 463-9010
+          </a>
+          <button class="btn btn--ghost" onclick="goToStep(1)" style="margin-top:12px;">Start a new quote</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Google Maps API — replace YOUR_API_KEY -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=drawing,geometry,places&callback=initMap">
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
