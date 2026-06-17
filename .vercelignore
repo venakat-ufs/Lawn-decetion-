@@ -1,18 +1,24 @@
-# Root-level files that live in public/ for Vercel deployment
-app.js
-index.html
-style.css
-loader.js
+# Root-level browser files — served from public/ instead
+/app.js
+/index.html
+/style.css
+/loader.js
 
-# Local dev server — not a Vercel function
-server.js
+# Local dev server
+/server.js
 
 # Debug and test scripts
-debug-*.js
-test-*.js
-iterate-test.js
-manual-test.js
-proof-test.js
+/debug-area.js
+/debug-mask.js
+/debug-regrid.js
+/debug-sherman.js
+/debug-visualize.js
+/iterate-test.js
+/manual-test.js
+/proof-test.js
+/test-3props.js
+/test-detection.js
+/test-multi-lawn.js
 
 # Generated output
 tools/
