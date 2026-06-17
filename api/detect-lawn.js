@@ -272,6 +272,21 @@ function computePolygonCoverage(greenPoly, gptPolygons) {
   return inside ? covered / inside : 0;
 }
 
+// Convert RGB (0-255) to HSV. Returns [hue 0-360, saturation 0-1, value 0-1].
+function rgbToHsv(r, g, b) {
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  const delta = max - min;
+  let h = 0;
+  if (delta > 0) {
+    if (max === gn)      h = 60 * (((bn - rn) / delta) + 2);
+    else if (max === bn) h = 60 * (((rn - gn) / delta) + 4);
+    else                 h = 60 * (((gn - bn) / delta) % 6);
+  }
+  if (h < 0) h += 360;
+  return [h, max === 0 ? 0 : delta / max, max];
+}
+
 // ── Green segmentation ────────────────────────────────────────────────────────
 async function analyzeGreenLawn(staticUrl, parcelPixels) {
   if (!Array.isArray(parcelPixels) || parcelPixels.length < 3) return { polygon: [], mask: null, width: 0, height: 0 };
@@ -291,10 +306,10 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
     const brightness = (r + g + b) / 3;
     const greenDominance = g - Math.max(r, b);
     const excessGreen = (2 * g) - r - b;
-    const isLikelyLawn = g >= 72 && greenDominance >= 8 && excessGreen >= 18 && brightness >= 72;
-    const isAnyGreen = (g >= 72 && greenDominance >= 8 && excessGreen >= 18 && brightness >= 42)
-      || (g >= 54 && greenDominance >= 5 && excessGreen >= 14 && brightness >= 35);
-    if (isAnyGreen) { mask[y * width + x] = 1; seeds.push({ x, y, g, brightness, greenDominance, excessGreen, tier: isLikelyLawn ? 1 : 2 }); }
+    // HSV-based grass detection — eliminates brown dirt (hue 15-40°) and grey roofs (sat < 20%)
+    const [hue, sat, val] = rgbToHsv(r, g, b);
+    const isGrassGreen = hue >= 75 && hue <= 150 && sat >= 0.20 && val >= 0.25;
+    if (isGrassGreen) { mask[y * width + x] = 1; seeds.push({ x, y, g, brightness, greenDominance, excessGreen, hue, sat, val }); }
   }
 
   if (!seeds.length) return { polygon: [], mask, width, height };
@@ -363,7 +378,7 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
   const topScore = scoredComponents[0].score;
   const significant = scoredComponents
     .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 18)
-    .slice(0, 6);
+    .slice(0, 1);
 
   const polygons = significant.map(c => c.polygon.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) })));
   const patches = significant.map((c, i) => ({
@@ -397,17 +412,17 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
 
   const grassGuidance = strict
     ? [
-        'Inside the target property ONLY, identify visible green turf / grass patches.',
-        'Trace only the outer edge of the green lawn area.',
-        'Look for the most obvious green or green-brown vegetation patch inside the parcel.',
-        'If the lawn is a thin strip, trace the strip exactly.',
-        'If there is any visible grass inside the parcel, return a tight polygon around that grass instead of empty.',
+        'Inside the target property ONLY, identify BRIGHT GREEN grass/turf — not brown, not tan, not grey.',
+        'Grass is medium-bright GREEN. Brown dirt, tan soil, grey roofs, red tiles are NOT grass.',
+        'Trace only the outer edge of the clearly GREEN lawn area.',
+        'If the lawn is a thin green strip, trace the strip exactly.',
+        'If there is NO clearly green grass patch visible, return empty array [].',
       ]
     : [
         'Retry mode: focus only on the brightest visible green patch inside the parcel.',
-        'A residential lawn is usually a contiguous green rectangle or strip in a side yard or rear yard.',
-        'If you can see any grass/turf at all, return the tightest polygon around that patch.',
-        'Do not choose the roof or the full house footprint.',
+        'A residential lawn is a contiguous bright-green rectangle or strip.',
+        'Return the tightest polygon around that one green patch.',
+        'If nothing is green, return [].',
       ];
 
   const patchHints = greenPatches.length > 0
@@ -445,8 +460,8 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
     '- Each inner array: 6–16 clockwise points tracing one continuous grass patch',
     '- Single lawn area → single-element outer array. No grass at all → empty outer array []',
     '- All x,y integers 0–' + STATIC_SIZE,
-    'ADDITIONAL GUIDANCE:\nIf the property has grass in BOTH the front yard and back yard, return both as separate polygons.\nTrace only visible grass — not the house footprint, roof, or driveway.',
-    'ADDITIONAL GUIDANCE:\nEven if grass is small or dry, identify each visible patch.\nLook for green or green-brown vegetation texture.',
+    'ADDITIONAL GUIDANCE:\nReturn only ONE polygon — the single best, most clearly green lawn area you can see.\nTrace tightly around that green area only. Do not use the full parcel boundary as the polygon.',
+    'ADDITIONAL GUIDANCE:\nGrass = bright/medium GREEN color. Brown or tan areas are bare soil — exclude them.\nDo NOT include roof, driveway, bare soil, trees, or shadows in any polygon.',
     '- confidence: "high" / "medium" / "low"',
   ];
 }
@@ -609,17 +624,24 @@ module.exports = async function handler(req, res) {
       lawnPolygons = lawnPolygons.map(p => clipPolygonToParcel(p, parcelPixels)).filter(p => p.length >= 3);
     }
 
-    // Step 2: Per-polygon validation (green coverage + texture)
+    // Step 2: Per-polygon validation — GREEN_MIN=0.55, large polygons need 0.70
+    const GREEN_MIN = 0.55;
+    const LARGE_POLY_PX2 = 12000; // ~2000 sq ft
+
     if (hasGreenMask && lawnPolygons.length > 0 && greenAnalysis.data) {
       lawnPolygons = lawnPolygons.filter(poly => {
-        const score = scorePolygonAgainstMask(poly, greenAnalysis.mask, greenAnalysis.width, greenAnalysis.height);
-        if (score < 0.35) return false;
+        const score    = scorePolygonAgainstMask(poly, greenAnalysis.mask, greenAnalysis.width, greenAnalysis.height);
+        const area     = polygonPixelArea(poly);
+        const minGreen = area > LARGE_POLY_PX2 ? 0.70 : GREEN_MIN;
+        if (score < minGreen) { console.log('[gpt-reject] low-green score=' + score.toFixed(3) + ' min=' + minGreen + ' area=' + Math.round(area)); return false; }
         const texture = computePolygonAvgTexture(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height);
-        return texture <= 18;
+        if (texture > 18) { console.log('[gpt-reject] tree-texture=' + texture.toFixed(1)); return false; }
+        console.log('[gpt-accept] score=' + score.toFixed(3) + ' texture=' + texture.toFixed(1));
+        return true;
       });
     } else if (hasGreenMask && lawnPolygons.length > 0) {
       lawnPolygons = lawnPolygons.filter(poly =>
-        scorePolygonAgainstMask(poly, greenAnalysis.mask, greenAnalysis.width, greenAnalysis.height) >= 0.35
+        scorePolygonAgainstMask(poly, greenAnalysis.mask, greenAnalysis.width, greenAnalysis.height) >= GREEN_MIN
       );
     }
 
@@ -627,36 +649,21 @@ module.exports = async function handler(req, res) {
     const gptTotalArea = lawnPolygons.reduce((s, p) => s + polygonPixelArea(p), 0);
 
     if (lawnPolygons.length > 0 && gptTotalArea >= GPT_MIN_PX2) {
-      // Drop dark polygons (tree canopy)
+      // Drop dark polygons (tree canopy), keep single best
       if (greenAnalysis.data) {
         lawnPolygons = lawnPolygons.filter(poly => {
           const b = computePolygonAvgBrightness(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height);
           return b >= 60;
         });
         if (lawnPolygons.length === 0 && greenFallbackPolygons.length > 0) {
-          lawnPolygons = greenFallbackPolygons;
+          lawnPolygons = greenFallbackPolygons.slice(0, 1);
           sourceSuffix = 'green-fallback';
         }
       }
-
-      // Supplement with uncovered bright green patches
-      const brightGreenPolys = greenFallbackPolygons.filter((_, i) => {
-        const p = greenAnalysis.patches?.[i];
-        return p && p.brightness >= 65 && p.brightness <= 185 && p.texture <= 20;
-      });
-      const supplemental = brightGreenPolys.filter(gsPoly => computePolygonCoverage(gsPoly, lawnPolygons) < 0.35);
-      if (supplemental.length) {
-        lawnPolygons = [...lawnPolygons, ...supplemental];
-        sourceSuffix = 'gpt4o+green';
-      }
+      lawnPolygons = lawnPolygons.slice(0, 1);
 
     } else if (greenFallbackPolygons.length > 0) {
-      // Fallback: only use patches with natural brightness
-      const validFallback = greenFallbackPolygons.filter((_, i) => {
-        const p = greenAnalysis.patches?.[i];
-        return !p || (p.brightness >= 65 && p.brightness <= 185);
-      });
-      lawnPolygons = validFallback;
+      lawnPolygons = greenFallbackPolygons.slice(0, 1);
       sourceSuffix = 'green-fallback';
       if (!parsed.confidence || parsed.confidence === 'low') parsed.confidence = 'medium';
     }
