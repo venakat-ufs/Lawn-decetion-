@@ -1,3 +1,10 @@
 {
-  "version": 2
+  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 30
+    }
+  }
 }
