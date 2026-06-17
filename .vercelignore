@@ -1,0 +1,22 @@
+# Root-level browser JS — served from public/ instead
+# (Vercel wrongly treats root app.js as a Node.js entrypoint)
+app.js
+index.html
+style.css
+loader.js
+
+# Local dev server — not needed on Vercel
+server.js
+
+# Debug and test scripts
+debug-*.js
+test-*.js
+iterate-test.js
+manual-test.js
+proof-test.js
+
+# Tools and generated output
+tools/
+graphify-out/
+iterations/
+test-screenshots/
