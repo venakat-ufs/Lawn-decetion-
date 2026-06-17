@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>United Field Services | Free Lawn Mowing Quote</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
@@ -104,6 +103,11 @@
         </div>
       </div>
       <div class="map-header__tools">
+        <button class="map-tool-btn map-tool-btn--ai" id="autoDetectBtn" title="Auto-detect lawn using AI">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg>
+          Auto-Detect Lawn
+        </button>
+        <div class="tool-divider"></div>
         <button class="map-tool-btn active" id="traceBtn" title="Trace your lawn area">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Trace
@@ -120,6 +124,10 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           Clear
         </button>
+        <button class="map-tool-btn" id="savePicBtn" title="Download the detected map as a PNG">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Save Pic
+        </button>
       </div>
     </div>
 
@@ -128,7 +136,7 @@
     <!-- Instruction overlay -->
     <div class="map-instruction" id="mapInstruction">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Click around the outline of your lawn area. Double-click to finish.
+      Click <strong>Auto-Detect Lawn</strong> to automatically outline your grass. Or use <strong>Trace</strong> to draw manually.
       <button class="dismiss-hint" id="dismissHint">Got it</button>
     </div>
 
@@ -343,10 +351,17 @@
     </section>
   </div>
 
-  <!-- Google Maps API — replace YOUR_API_KEY -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=drawing,geometry,places&callback=initMap">
-  </script>
+  <!-- AI detection loading overlay -->
+  <div id="aiLoadingOverlay" style="display:none;">
+    <div class="ai-loading-box">
+      <div class="ai-spinner"></div>
+      <p id="aiLoadingText">Analyzing satellite image…</p>
+      <small>AI is detecting your lawn area</small>
+    </div>
+  </div>
+
   <script src="app.js"></script>
+  <!-- loader.js fetches Maps API key from /api/config and loads Maps dynamically -->
+  <script src="loader.js"></script>
 </body>
 </html>

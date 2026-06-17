@@ -208,6 +208,39 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 .map-tool-btn:hover { background: rgba(247,245,242,0.16); color: var(--white); }
 .map-tool-btn.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
+.map-tool-btn--ai {
+  background: linear-gradient(135deg, #10a37f, #0d7a61);
+  color: var(--white) !important;
+  border-color: #10a37f !important;
+  font-weight: 700;
+}
+.map-tool-btn--ai:hover { background: linear-gradient(135deg, #0d7a61, #0a5e4a) !important; }
+.map-tool-btn--ai.loading { opacity: 0.7; cursor: not-allowed; pointer-events: none; }
+.tool-divider { width: 1px; background: rgba(247,245,242,0.2); margin: 0 4px; align-self: stretch; }
+
+/* AI Loading Overlay */
+#aiLoadingOverlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(31,31,31,0.75);
+  display: flex; align-items: center; justify-content: center;
+}
+.ai-loading-box {
+  background: var(--white); border-radius: 8px;
+  padding: 40px 48px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  min-width: 280px;
+}
+.ai-loading-box p { font-weight: 700; font-size: 16px; color: var(--ufs-charcoal); margin: 0; }
+.ai-loading-box small { font-size: 13px; color: var(--mid-gray); }
+.ai-spinner {
+  width: 48px; height: 48px;
+  border: 4px solid var(--warm-gray);
+  border-top-color: #10a37f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 #map { flex: 1; width: 100%; }
 
