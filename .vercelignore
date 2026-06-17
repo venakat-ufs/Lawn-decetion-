@@ -1,10 +1,4 @@
-# Root-level browser files — served from public/ instead
-/app.js
-/index.html
-/style.css
-/loader.js
-
-# Local dev server
+# Local dev server — NOT a Vercel function
 /server.js
 
 # Debug and test scripts

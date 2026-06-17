@@ -1,18 +1,19 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/config.js",           "use": "@vercel/node" },
-    { "src": "api/detect-lawn.js",      "use": "@vercel/node", "config": { "maxDuration": 30 } },
-    { "src": "api/parcel-boundary.js",  "use": "@vercel/node" },
-    { "src": "api/export-map.js",       "use": "@vercel/node" },
-    { "src": "public/**",               "use": "@vercel/static" }
+    { "src": "api/config.js",          "use": "@vercel/node" },
+    { "src": "api/detect-lawn.js",     "use": "@vercel/node", "config": { "maxDuration": 30 } },
+    { "src": "api/parcel-boundary.js", "use": "@vercel/node" },
+    { "src": "api/export-map.js",      "use": "@vercel/node" },
+    { "src": "index.html",             "use": "@vercel/static" },
+    { "src": "app.js",                 "use": "@vercel/static" },
+    { "src": "style.css",              "use": "@vercel/static" },
+    { "src": "loader.js",              "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/config",           "dest": "/api/config.js" },
-    { "src": "/api/detect-lawn",      "dest": "/api/detect-lawn.js" },
-    { "src": "/api/parcel-boundary",  "dest": "/api/parcel-boundary.js" },
-    { "src": "/api/export-map",       "dest": "/api/export-map.js" },
-    { "src": "/",                     "dest": "/index.html" },
-    { "src": "/(.*)",                 "dest": "/$1" }
+    { "src": "/api/config",          "dest": "/api/config.js" },
+    { "src": "/api/detect-lawn",     "dest": "/api/detect-lawn.js" },
+    { "src": "/api/parcel-boundary", "dest": "/api/parcel-boundary.js" },
+    { "src": "/api/export-map",      "dest": "/api/export-map.js" }
   ]
 }
