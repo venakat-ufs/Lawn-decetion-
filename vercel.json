@@ -1,7 +1,18 @@
 {
-  "buildCommand": "echo done",
-  "outputDirectory": "public",
-  "functions": {
-    "api/detect-lawn.js": { "maxDuration": 30 }
-  }
+  "version": 2,
+  "builds": [
+    { "src": "api/config.js",           "use": "@vercel/node" },
+    { "src": "api/detect-lawn.js",      "use": "@vercel/node", "config": { "maxDuration": 30 } },
+    { "src": "api/parcel-boundary.js",  "use": "@vercel/node" },
+    { "src": "api/export-map.js",       "use": "@vercel/node" },
+    { "src": "public/**",               "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/config",           "dest": "/api/config.js" },
+    { "src": "/api/detect-lawn",      "dest": "/api/detect-lawn.js" },
+    { "src": "/api/parcel-boundary",  "dest": "/api/parcel-boundary.js" },
+    { "src": "/api/export-map",       "dest": "/api/export-map.js" },
+    { "src": "/",                     "dest": "/index.html" },
+    { "src": "/(.*)",                 "dest": "/$1" }
+  ]
 }
