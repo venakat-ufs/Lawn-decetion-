@@ -569,7 +569,7 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
       // HSV-based grass detection — eliminates brown dirt (hue 15-40°) and grey roofs (sat < 20%)
       // Grass hue: 75-150°, Saturation > 20%, Value > 25%
       const [hue, sat, val] = rgbToHsv(r, g, b);
-      const isGrassHue = hue >= 75 && hue <= 150;
+      const isGrassHue = hue >= 65 && hue <= 150;
       const isGrassGreen = isGrassHue && sat >= 0.20 && val >= 0.25;
 
       if (isGrassGreen) {
@@ -610,8 +610,8 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
       }
     }
 
-    // 80 px ≈ ~20 sq ft at zoom 20 — filters satellite noise, keeps real lawn strips
-    if (component.length >= 80) components.push(component);
+    // 50 px ≈ ~8 sq ft at zoom 20 — catches thin grass strips while filtering noise
+    if (component.length >= 50) components.push(component);
   }
 
   if (!components.length) return { polygons: [], polygon: [], mask, width, height };
