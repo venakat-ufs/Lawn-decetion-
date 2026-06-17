@@ -678,7 +678,7 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
           { x: minX, y: maxY },
         ];
 
-    return { polygon, score, avgBrightness, avgTexture, minX, minY, maxX, maxY };
+    return { polygon, score, area, avgBrightness, avgTexture, minX, minY, maxX, maxY };
   });
 
   scoredComponents.sort((a, b) => b.score - a.score);
@@ -692,15 +692,20 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
   console.log('[green-seg] all components (' + scoredComponents.length + '):');
   scoredComponents.slice(0, 8).forEach((c, i) => {
     const pct = Math.round(c.score / topScore * 100);
-    console.log('[comp-' + i + '] brightness=' + Math.round(c.avgBrightness) + ' texture=' + Math.round(c.avgTexture) + ' score%=' + pct + '%');
+    const sqft = Math.round(c.area * 0.1656);
+    console.log('[comp-' + i + '] sqft=' + sqft + ' brightness=' + Math.round(c.avgBrightness) + ' texture=' + Math.round(c.avgTexture) + ' score%=' + pct + '%');
   });
 
   // Keep components >= 5% of top score, brightness >= 45, texture <= 18.
   // texture <= 18 is the lawn/tree boundary (TGDI paper: grass ~10-14, trees ~18-35).
   // Brightness > 185 components stay in significant for GPT hints exclusion but
   // are filtered from the fallback polygon list (see fallback path below).
+  // Sort by AREA (largest first) after quality filtering — picks the biggest green chunk,
+  // not the most compact small patch. Avoids selecting small brown-ish corner pixels
+  // over the main large lawn area.
   const significant = scoredComponents
     .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 18)
+    .sort((a, b) => b.area - a.area)
     .slice(0, 1);
 
   const polygons = significant.map(c =>

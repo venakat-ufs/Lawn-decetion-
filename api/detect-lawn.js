@@ -370,7 +370,7 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
     const polygon = hull.length >= 3 ? simplifyPolygonPoints(hull, 12)
       : [{ x: minX, y: minY }, { x: maxX, y: minY }, { x: maxX, y: maxY }, { x: minX, y: maxY }];
 
-    return { polygon, score, avgBrightness, avgTexture, minX, minY, maxX, maxY };
+    return { polygon, score, area, avgBrightness, avgTexture, minX, minY, maxX, maxY };
   });
 
   scoredComponents.sort((a, b) => b.score - a.score);
@@ -379,6 +379,7 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
   const topScore = scoredComponents[0].score;
   const significant = scoredComponents
     .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 18)
+    .sort((a, b) => b.area - a.area)
     .slice(0, 1);
 
   const polygons = significant.map(c => c.polygon.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) })));
