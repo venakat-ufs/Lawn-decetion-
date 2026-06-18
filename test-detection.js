@@ -9,9 +9,9 @@ const path = require('path');
 const http = require('http');
 
 const BASE_URL = 'http://localhost:3001';
-const ADDRESS  = '6149 Auckland Ave, North Hollywood, CA 91606';
-const LAT      = 34.18824;
-const LNG      = -118.39378;
+const ADDRESS  = '1012 N Sunset Canyon Dr, Burbank, CA 91504';
+const LAT      = 34.1994095;
+const LNG      = -118.3058051;
 const MAX      = 3;
 const SS_DIR   = path.join(__dirname, 'test-screenshots');
 

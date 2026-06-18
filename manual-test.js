@@ -13,8 +13,8 @@ const path = require('path');
 const SCREENSHOTS = path.join(__dirname, 'test-screenshots');
 if (!fs.existsSync(SCREENSHOTS)) fs.mkdirSync(SCREENSHOTS);
 
-// Flat Valley Village / Sherman Oaks residential street — clear front + back yards
-const TEST_ADDRESS = '5643 Colbath Ave, Sherman Oaks, CA 91401';
+// Flat Burbank residential street — clear front lawn and reliable positive case
+const TEST_ADDRESS = '1012 N Sunset Canyon Dr, Burbank, CA 91504';
 
 async function run() {
   console.log('\nManual lawn detection verification');

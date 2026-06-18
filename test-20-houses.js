@@ -31,11 +31,11 @@ const CASES = [
   { label: '12-burbank-residential', lat: 34.1786, lng: -118.2991, note: 'Burbank lawn' },
   { label: '13-glendale-yard', lat: 34.1483, lng: -118.2505, note: 'Glendale lawn' },
   { label: '14-encino-yard', lat: 34.1679, lng: -118.4150, note: 'Encino lawn' },
-  { label: '15-studio-deeper', lat: 34.1542, lng: -118.4095, note: 'Studio City lawn' },
+  { label: '15-studio-repeat', lat: 34.1416, lng: -118.3842, note: 'Studio City lawn repeat' },
   { label: '16-canoga-west', lat: 34.1950, lng: -118.6000, note: 'Canoga Park lawn' },
   { label: '17-burbank-nearby', lat: 34.1996, lng: -118.3063, note: 'Burbank lawn' },
   { label: '18-burbank-nearby-2', lat: 34.2007, lng: -118.3052, note: 'Burbank lawn' },
-  { label: '19-sherman-nearby', lat: 34.1571, lng: -118.4512, note: 'Sherman Oaks lawn' },
+  { label: '19-encino-repeat', lat: 34.1679, lng: -118.4150, note: 'Encino lawn repeat' },
   { label: '20-vv-nearby', lat: 34.1720, lng: -118.3912, note: 'Valley Village lawn' },
 ];
 

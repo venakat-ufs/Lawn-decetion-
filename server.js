@@ -862,7 +862,8 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
     '- All x,y integers 0–' + STATIC_SIZE,
     'ADDITIONAL GUIDANCE:\nReturn all distinct lawn polygons you can confidently see inside the parcel.\nIf the property has separate front and back lawns, return both as separate polygons.\nTrace tightly around each green area only. Do not use the full parcel boundary as any polygon.',
     'ADDITIONAL GUIDANCE:\nGrass = bright/medium GREEN color. Brown or tan areas are bare soil — exclude them.\nDo NOT include roof, driveway, bare soil, trees, or shadows in any polygon.',
-    '- confidence: "high" / "medium" / "low"',
+    'ADDITIONAL GUIDANCE:\nIMPORTANT: Even if the grass area is small or looks brownish/dry, identify it.\nLook carefully for ANY patch that has grass texture — even a 3x3 meter patch counts.\nThe property at the red pin is a residential lot. It likely has at least some lawn.\nDo NOT return empty polygon — if unsure, estimate the most likely grass area.',
+        '- confidence: "high" / "medium" / "low"',
   ];
 }
 

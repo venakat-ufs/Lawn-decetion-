@@ -11,7 +11,7 @@ const path          = require('path');
 const http          = require('http');
 
 // Flat suburban address — typical front+back lawn, good multi-polygon test
-const ADDRESS  = '5643 Colbath Ave, Sherman Oaks, CA 91401';
+const ADDRESS  = '1012 N Sunset Canyon Dr, Burbank, CA 91504';
 const BASE_URL = 'http://localhost:3001';
 const SS_DIR   = path.join(__dirname, 'iterations');
 const MAX_ITER = 1;
