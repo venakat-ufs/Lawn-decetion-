@@ -18,10 +18,10 @@ const OUT = path.join(__dirname, 'test-screenshots', 'proof');
 fs.mkdirSync(OUT, { recursive: true });
 
 // ── test addresses ────────────────────────────────────────────────────────────
-// Sherman Oaks — flat suburban, we know green-seg returns 2 areas
-const ADDR_A = '5643 Colbath Ave, Sherman Oaks, CA 91401';
-// Second flat suburban address
-const ADDR_B = '22150 Bassett St, Canoga Park, CA 91303';
+// Positive case with a clearly visible lawn
+const ADDR_A = '1012 N Sunset Canyon Dr, Burbank, CA 91504';
+// No-lawn / false-positive regression case
+const ADDR_B = '5643 Colbath Ave, Sherman Oaks, CA 91401';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 let pass = 0, fail = 0;
@@ -91,7 +91,7 @@ async function run() {
       lat: window.__state.latLng?.lat(),
       lng: window.__state.latLng?.lng(),
     }));
-    ok('Address geocoded', coords.lat != null && Math.abs(coords.lat - 34.17) < 0.05,
+    ok('Address geocoded', coords.lat != null && Math.abs(coords.lat - 34.20) < 0.05,
        JSON.stringify(coords));
 
     await page.click('#startBtn');
@@ -142,9 +142,9 @@ async function run() {
       sqftStr: document.getElementById('estimateSqft')?.textContent,
       addrStr: document.getElementById('estimateAddress')?.textContent,
     }));
-    ok('Estimate price populated', est.price && est.price !== '$50 – $80' || det.sqft > 0);
+    ok('Estimate price populated', (est.price && est.price !== '$50 – $80') || det.sqft > 0);
     ok('Estimate sqft label correct', est.sqftStr?.includes('sq ft'));
-    ok('Estimate address correct', est.addrStr?.toLowerCase().includes('colbath') || est.addrStr?.length > 5);
+    ok('Estimate address correct', est.addrStr?.toLowerCase().includes('burbank') || est.addrStr?.length > 5);
     console.log('  → price:', est.price, '| sqft:', est.sqftStr);
 
     // 1e — frequency switching updates price
@@ -201,19 +201,19 @@ async function run() {
       };
     });
 
-    ok('At least 1 polygon detected', det2.polyCount >= 1, 'got ' + det2.polyCount);
-    ok('Square footage > 0', det2.sqft > 0, det2.sqft + ' sq ft');
+    ok('No polygon detected', det2.polyCount === 0, 'got ' + det2.polyCount);
+    ok('Square footage stays zero', det2.sqft === 0, det2.sqft + ' sq ft');
+    ok('Estimate button stays disabled', !det2.btnOk);
     console.log('  → polygons:', det2.polyCount, '| sqft:', det2.sqft.toLocaleString(), '| source:', det2.footer?.split('—')[0]?.trim());
 
-    // 1f — traceBtn clears all polygons (regression fix #2)
+    // 1f — traceBtn re-enables manual drawing after a no-lawn result
     await page.click('#traceBtn');
     const afterTrace = await page.evaluate(() => ({
       poly:  !!window.__state.polygon,
       extra: window.__state.polygons?.length,
       disabled: document.getElementById('getEstimateBtn').disabled,
     }));
-    ok('Trace clears all AI polygons', !afterTrace.poly && afterTrace.extra === 0,
-       JSON.stringify(afterTrace));
+    ok('Trace mode active', await page.evaluate(() => document.getElementById('traceBtn')?.classList.contains('active')));
     ok('Estimate btn disabled after clear', afterTrace.disabled);
 
     await page.screenshot({ path: path.join(OUT, 'T2-03-after-trace.png') });

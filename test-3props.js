@@ -9,8 +9,8 @@ const fs           = require('fs');
 const path         = require('path');
 
 const PROPS = [
-  { label: '1-sherman-oaks',    address: '5643 Colbath Ave, Sherman Oaks, CA 91401' },
-  { label: '2-burbank',         address: '1012 N Sunset Canyon Dr, Burbank, CA 91504' },
+  { label: '1-burbank',         address: '1012 N Sunset Canyon Dr, Burbank, CA 91504' },
+  { label: '2-bassett',         address: '22150 Bassett St, Canoga Park, CA 91303' },
   { label: '3-north-hollywood', address: '6149 Auckland Ave, North Hollywood, CA 91606' },
 ];
 

@@ -526,6 +526,62 @@ function computePolygonAvgTexture(polygon, data, width, height) {
   return n ? total / n : 10;
 }
 
+function computePolygonColorStats(polygon, data, width, height) {
+  if (!data || !polygon || polygon.length < 3) {
+    return { avgHue: 0, avgSat: 0, avgGreenDominance: -255, greenRatio: 0, brownRatio: 0 };
+  }
+
+  const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+  const minX = Math.max(0, Math.floor(Math.min(...xs)));
+  const minY = Math.max(0, Math.floor(Math.min(...ys)));
+  const maxX = Math.min(width - 1, Math.ceil(Math.max(...xs)));
+  const maxY = Math.min(height - 1, Math.ceil(Math.max(...ys)));
+  let sumHue = 0, sumHueSq = 0, sumSat = 0, sumSatSq = 0, sumGreenDominance = 0, samples = 0;
+  let greenHits = 0, brownHits = 0;
+
+  for (let y = minY; y <= maxY; y += 2) {
+    for (let x = minX; x <= maxX; x += 2) {
+      if (!pointInPolygon({ x, y }, polygon)) continue;
+      const idx = (y * width + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const [hue, sat, val] = rgbToHsv(r, g, b);
+      const greenDominance = g - Math.max(r, b);
+      if (hue >= 65 && hue <= 150 && sat >= 0.20 && val >= 0.25 && greenDominance >= 8) greenHits++;
+      if (hue >= 15 && hue <= 60 && sat >= 0.18 && val >= 0.18 && r >= g - 8 && r >= b - 4) brownHits++;
+      sumHue += hue;
+      sumHueSq += hue * hue;
+      sumSat += sat;
+      sumSatSq += sat * sat;
+      sumGreenDominance += greenDominance;
+      samples++;
+    }
+  }
+
+  const avgHue = samples ? sumHue / samples : 0;
+  const avgSat = samples ? sumSat / samples : 0;
+  const hueStd = samples ? Math.sqrt(Math.max(0, (sumHueSq / samples) - (avgHue * avgHue))) : 0;
+  const satStd = samples ? Math.sqrt(Math.max(0, (sumSatSq / samples) - (avgSat * avgSat))) : 0;
+  return {
+    avgHue,
+    avgSat,
+    hueStd,
+    satStd,
+    avgGreenDominance: samples ? sumGreenDominance / samples : -255,
+    greenRatio: samples ? greenHits / samples : 0,
+    brownRatio: samples ? brownHits / samples : 0,
+  };
+}
+
+function isWarmSparseGreenPolygon(poly, data, width, height) {
+  const colorStats = computePolygonColorStats(poly, data, width, height);
+  return colorStats.avgHue >= 120
+    && colorStats.avgSat <= 0.30
+    && colorStats.avgGreenDominance <= 16
+    && colorStats.greenRatio <= 0.65;
+}
+
 // Fraction of greenPoly's interior covered by any polygon in gptPolygons (0–1)
 function computePolygonCoverage(greenPoly, gptPolygons) {
   if (!gptPolygons.length || !greenPoly.length) return 0;
@@ -700,13 +756,11 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
   // texture <= 18 is the lawn/tree boundary (TGDI paper: grass ~10-14, trees ~18-35).
   // Brightness > 185 components stay in significant for GPT hints exclusion but
   // are filtered from the fallback polygon list (see fallback path below).
-  // Sort by AREA (largest first) after quality filtering — picks the biggest green chunk,
-  // not the most compact small patch. Avoids selecting small brown-ish corner pixels
-  // over the main large lawn area.
+  // Sort by AREA (largest first) after quality filtering — preserve all significant
+  // lawn regions instead of truncating to the single largest fragment.
   const significant = scoredComponents
     .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 18)
-    .sort((a, b) => b.area - a.area)
-    .slice(0, 1);
+    .sort((a, b) => b.area - a.area);
 
   const polygons = significant.map(c =>
     c.polygon.map(point => ({ x: Math.round(point.x), y: Math.round(point.y) }))
@@ -806,7 +860,7 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
     '- Each inner array: 6–16 clockwise points tracing one continuous grass patch',
     '- Single lawn area → single-element outer array. No grass at all → empty outer array []',
     '- All x,y integers 0–' + STATIC_SIZE,
-    'ADDITIONAL GUIDANCE:\nReturn only ONE polygon — the single best, most clearly green lawn area you can see.\nTrace tightly around that green area only. Do not use the full parcel boundary as the polygon.',
+    'ADDITIONAL GUIDANCE:\nReturn all distinct lawn polygons you can confidently see inside the parcel.\nIf the property has separate front and back lawns, return both as separate polygons.\nTrace tightly around each green area only. Do not use the full parcel boundary as any polygon.',
     'ADDITIONAL GUIDANCE:\nGrass = bright/medium GREEN color. Brown or tan areas are bare soil — exclude them.\nDo NOT include roof, driveway, bare soil, trees, or shadows in any polygon.',
     '- confidence: "high" / "medium" / "low"',
   ];
@@ -1003,7 +1057,11 @@ async function handleDetectLawn(req, res) {
       let sourceSuffix = 'gpt4o';
 
       const hasGreenMask = greenAnalysis?.mask && greenAnalysis.width && greenAnalysis.height;
-      const greenFallbackPolygons = (greenAnalysis.polygons || []).filter(p => p.length >= 3);
+      const MIN_OUTPUT_PX2 = 604; // ~100 sq ft at zoom 20
+      const greenFallbackPolygons = (greenAnalysis.polygons || [])
+        .filter(p => Array.isArray(p) && p.length >= 3)
+        .filter(p => polygonPixelArea(p) >= MIN_OUTPUT_PX2)
+        .filter(p => !greenAnalysis.data || !isWarmSparseGreenPolygon(p, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height));
 
       // ── Step 1: Clip every GPT polygon to the parcel boundary ──
       if (parcelPixels.length >= 3) {
@@ -1019,6 +1077,7 @@ async function handleDetectLawn(req, res) {
       // LARGE_POLY_PX2: polygons bigger than ~2000 sq ft need even higher green coverage (>70%)
       // to avoid accepting a "yard + house roof" combo that GPT drew too large.
       const LARGE_POLY_PX2 = 12000; // ~2000 sq ft at zoom 20
+      let rejectedWarmSparseGreen = false;
 
       if (hasGreenMask && lawnPolygons.length > 0 && greenAnalysis.data) {
         lawnPolygons = lawnPolygons.filter(poly => {
@@ -1026,6 +1085,7 @@ async function handleDetectLawn(req, res) {
           const area    = polygonPixelArea(poly);
           const sqft    = Math.round(area * 0.1656);
           const minGreen = area > LARGE_POLY_PX2 ? 0.70 : GREEN_MIN;
+          const colorStats = computePolygonColorStats(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height);
           if (score < minGreen) {
             dlog('gpt-reject', { reason: 'low-green', greenScore: +score.toFixed(3), minRequired: minGreen, areaPx: Math.round(area), sqft });
             return false;
@@ -1035,7 +1095,33 @@ async function handleDetectLawn(req, res) {
             dlog('gpt-reject', { reason: 'tree-texture', texture: +texture.toFixed(1), greenScore: +score.toFixed(3), sqft });
             return false;
           }
-          dlog('gpt-accept', { greenScore: +score.toFixed(3), texture: +texture.toFixed(1), sqft });
+          if (isWarmSparseGreenPolygon(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height)) {
+            rejectedWarmSparseGreen = true;
+            dlog('gpt-reject', {
+              reason: 'warm-sparse-green',
+              brownRatio: +colorStats.brownRatio.toFixed(2),
+              avgHue: Math.round(colorStats.avgHue),
+              avgSat: +colorStats.avgSat.toFixed(2),
+              hueStd: +colorStats.hueStd.toFixed(1),
+              satStd: +colorStats.satStd.toFixed(2),
+              greenDominance: Math.round(colorStats.avgGreenDominance),
+              greenScore: +score.toFixed(3),
+              sqft,
+            });
+            return false;
+          }
+          dlog('gpt-accept', {
+            greenScore: +score.toFixed(3),
+            texture: +texture.toFixed(1),
+            greenRatio: +colorStats.greenRatio.toFixed(2),
+            brownRatio: +colorStats.brownRatio.toFixed(2),
+            avgHue: Math.round(colorStats.avgHue),
+            avgSat: +colorStats.avgSat.toFixed(2),
+            hueStd: +colorStats.hueStd.toFixed(1),
+            satStd: +colorStats.satStd.toFixed(2),
+            greenDominance: Math.round(colorStats.avgGreenDominance),
+            sqft,
+          });
           return true;
         });
         dlog('gpt-filter', { polygonsRemaining: lawnPolygons.length });
@@ -1051,8 +1137,9 @@ async function handleDetectLawn(req, res) {
         });
       }
 
-      // At zoom 20 ~34° lat: 1 px² ≈ 0.1656 sq ft. Require >= 100 sq ft (~604 px²) total.
+      // At zoom 20 ~34° lat: 1 px² ≈ 0.1656 sq ft. Require >= 100 sq ft (~604 px²) per polygon.
       const GPT_MIN_PX2 = 604;
+      lawnPolygons = lawnPolygons.filter(poly => polygonPixelArea(poly) >= GPT_MIN_PX2);
       const gptTotalArea = lawnPolygons.reduce((s, p) => s + polygonPixelArea(p), 0);
       if (lawnPolygons.length > 0 && gptTotalArea >= GPT_MIN_PX2) {
         sourceSuffix = 'gpt4o';
@@ -1065,8 +1152,8 @@ async function handleDetectLawn(req, res) {
             if (b < 60) { console.log('[gpt-filter] dropped dark polygon brightness=' + Math.round(b)); return false; }
             return true;
           });
-          if (lawnPolygons.length === 0 && greenFallbackPolygons.length > 0) {
-            // All GPT polygons were trees — fall back
+          if (lawnPolygons.length === 0 && greenFallbackPolygons.length > 0 && !rejectedWarmSparseGreen) {
+            // All GPT polygons were trees or too small — fall back to the green segmentation result.
             lawnPolygons = greenFallbackPolygons;
             sourceSuffix = 'green-fallback';
           } else if (lawnPolygons.length < before) {
@@ -1074,12 +1161,9 @@ async function handleDetectLawn(req, res) {
           }
         }
 
-        // Keep only the single best GPT polygon
-        lawnPolygons = lawnPolygons.slice(0, 1);
-
-      } else if (greenFallbackPolygons.length > 0) {
-        // Green-seg fallback — take the single best polygon only
-        lawnPolygons = greenFallbackPolygons.slice(0, 1);
+      } else if (greenFallbackPolygons.length > 0 && !rejectedWarmSparseGreen) {
+        // Green-seg fallback — keep every valid lawn region the segmentation found.
+        lawnPolygons = greenFallbackPolygons;
         sourceSuffix = 'green-fallback';
         if (!parsed.confidence || parsed.confidence === 'low') {
           parsed.confidence = 'medium';
