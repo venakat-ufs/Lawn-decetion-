@@ -752,14 +752,14 @@ async function analyzeGreenLawn(staticUrl, parcelPixels) {
     console.log('[comp-' + i + '] sqft=' + sqft + ' brightness=' + Math.round(c.avgBrightness) + ' texture=' + Math.round(c.avgTexture) + ' score%=' + pct + '%');
   });
 
-  // Keep components >= 5% of top score, brightness >= 45, texture <= 18.
-  // texture <= 18 is the lawn/tree boundary (TGDI paper: grass ~10-14, trees ~18-35).
+  // Keep components >= 5% of top score, brightness >= 45, texture <= 22.
+  // texture <= 22 leaves room for shaded or partially tree-covered grass while still excluding rough tree canopy.
   // Brightness > 185 components stay in significant for GPT hints exclusion but
   // are filtered from the fallback polygon list (see fallback path below).
   // Sort by AREA (largest first) after quality filtering — preserve all significant
   // lawn regions instead of truncating to the single largest fragment.
   const significant = scoredComponents
-    .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 18)
+    .filter(c => c.score >= topScore * 0.05 && c.avgBrightness >= 45 && c.avgTexture <= 22)
     .sort((a, b) => b.area - a.area);
 
   const polygons = significant.map(c =>
@@ -815,13 +815,21 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
         'Inside the target property ONLY, identify BRIGHT GREEN grass/turf — not brown, not tan, not grey.',
         'Grass is medium-bright GREEN. Brown dirt, tan soil, grey roofs, red tiles are NOT grass.',
         'Trace only the outer edge of the clearly GREEN lawn area.',
+        'If the green pre-scan shows multiple regions, inspect all of them and return every lawn polygon, even small second lawns.',
+        'If the parcel has front yard, back yard, or side strips, return each lawn area separately when visible.',
+        'If you can see both a front lawn and a back lawn, return both even when one is smaller, shaded, or partially hidden.',
+        'Do not merge separate lawn patches into one polygon.',
+        'If the lawn is thin, L-shaped, or split by a walkway, keep the full visible grass shape instead of shrinking to the brightest patch.',
         'If the lawn is a thin green strip, trace the strip exactly.',
         'If there is NO clearly green grass patch visible, return empty array [].',
       ]
     : [
-        'Retry: look for any patch that is clearly GREEN (not brown/tan/grey) inside the parcel.',
-        'A residential lawn is a contiguous bright-green rectangle or strip.',
-        'Return the tightest polygon around that one green patch.',
+        'Retry: look for any patch that is clearly GREEN or visibly shaded grass (not brown/tan/grey) inside the parcel.',
+        'A residential lawn may be a rectangle, strip, L-shape, front yard, back yard, or side yard.',
+        'If the green pre-scan shows multiple regions, inspect all of them and return every lawn polygon, even small second lawns.',
+        'Return every distinct lawn polygon you can see; do not stop after the first patch.',
+        'If you can see both a front lawn and a back lawn, return both even when one is smaller, shaded, or partially hidden.',
+        'Do not merge separate lawn patches into one polygon.',
         'If nothing is green, return [].',
       ];
 
@@ -835,8 +843,8 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
           + (p.brightness >= 72 ? 'LIKELY LAWN (bright, smooth)' : p.brightness >= 58 ? 'mixed/borderline' : 'LIKELY TREE/SHRUB (dark, rough)')
           + ')'
         ),
-        'Trace regions marked LIKELY LAWN first. Ignore or skip LIKELY TREE/SHRUB regions.',
-        'Mixed/borderline regions: include only if you can see clearly flat mowable grass texture (not leaves/canopy).',
+        'Trace LIKELY LAWN regions first. Keep smaller separate lawn regions too; do not omit a front yard or back yard just because another lawn is larger.',
+        'Mixed/borderline regions: include them if they still look like mowable grass, even when partially shaded by trees or shadows.',
         '',
       ]
     : [];
@@ -861,8 +869,8 @@ function buildLawnPromptLines({ parcelPixels, strict = true, greenPatches = [] }
     '- Single lawn area → single-element outer array. No grass at all → empty outer array []',
     '- All x,y integers 0–' + STATIC_SIZE,
     'ADDITIONAL GUIDANCE:\nReturn all distinct lawn polygons you can confidently see inside the parcel.\nIf the property has separate front and back lawns, return both as separate polygons.\nTrace tightly around each green area only. Do not use the full parcel boundary as any polygon.',
-    'ADDITIONAL GUIDANCE:\nGrass = bright/medium GREEN color. Brown or tan areas are bare soil — exclude them.\nDo NOT include roof, driveway, bare soil, trees, or shadows in any polygon.',
-    'ADDITIONAL GUIDANCE:\nIMPORTANT: Even if the grass area is small or looks brownish/dry, identify it.\nLook carefully for ANY patch that has grass texture — even a 3x3 meter patch counts.\nThe property at the red pin is a residential lot. It likely has at least some lawn.\nDo NOT return empty polygon — if unsure, estimate the most likely grass area.',
+    'ADDITIONAL GUIDANCE:\nGrass = bright/medium GREEN color. Brown or tan areas are bare soil ? exclude them.\nDo NOT include roof, driveway, bare soil, trees, or shadows in any polygon, unless the shadow/tree cover still clearly reveals the mowable grass footprint.',
+    'ADDITIONAL GUIDANCE:\nIMPORTANT: Even if the grass area is small, partially shaded, or looks brownish/dry, identify it.\nLook carefully for ANY patch that has grass texture ? even a 3x3 meter patch counts.\nIf there are multiple separate lawns, return all of them. Do not stop after the first visible patch.\nThe property at the red pin is a residential lot. It likely has at least some lawn.\nDo NOT return empty polygon ? if unsure, estimate the most likely grass area.',
         '- confidence: "high" / "medium" / "low"',
   ];
 }
@@ -1092,7 +1100,7 @@ async function handleDetectLawn(req, res) {
             return false;
           }
           const texture = computePolygonAvgTexture(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height);
-          if (texture > 18) {
+          if (texture > 22) {
             dlog('gpt-reject', { reason: 'tree-texture', texture: +texture.toFixed(1), greenScore: +score.toFixed(3), sqft });
             return false;
           }
@@ -1150,7 +1158,7 @@ async function handleDetectLawn(req, res) {
           const before = lawnPolygons.length;
           lawnPolygons = lawnPolygons.filter(poly => {
             const b = computePolygonAvgBrightness(poly, greenAnalysis.data, greenAnalysis.width, greenAnalysis.height);
-            if (b < 60) { console.log('[gpt-filter] dropped dark polygon brightness=' + Math.round(b)); return false; }
+            if (b < 55) { console.log('[gpt-filter] dropped dark polygon brightness=' + Math.round(b)); return false; }
             return true;
           });
           if (lawnPolygons.length === 0 && greenFallbackPolygons.length > 0 && !rejectedWarmSparseGreen) {
